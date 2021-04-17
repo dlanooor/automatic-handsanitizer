@@ -8,7 +8,7 @@
 ; Hal		: Proyek Mikrokontroller 8051
 
 ;================== (DOCUMENTATION) ==================
-; Repository	: 
+; Repository	: https://github.com/dlanooor/automatic-handsanitizer/
 
 MOTORLEDBUZZER EQU P3 	;Port 3 digunakan untuk menyalakan dan mematikan DC Motor, LED, dan Buzzer
 ; P3.0 = Input 1 DC Motor
@@ -18,13 +18,13 @@ MOTORLEDBUZZER EQU P3 	;Port 3 digunakan untuk menyalakan dan mematikan DC Motor
 ; P3.5 = Input LED
 
 ; Keypad
-KEYPAD EQU P2		; P2 didefinisikan sebagai keypad
-ROW1 EQU P2.4
-ROW2 EQU P2.5
-ROW3 EQU P2.6
-ROW4 EQU P2.7
+KEYPAD EQU P2		; P2 didefinisikan sebagai KEYPAD
+ROW1 EQU P2.4		; P2.4 didefinisikan sebagai ROW1
+ROW2 EQU P2.5		; P2.5 didefinisikan sebagai ROW2
+ROW3 EQU P2.6		; P2.6 didefinisikan sebagai ROW3
+ROW4 EQU P2.7		; P2.7 didefinisikan sebagai ROW4
 
-COL2 EQU P2.1
+COL2 EQU P2.1		; P2.1 didefinisikan sebagai COL2
 
 LDR EQU P1.0		; P1.0 = input dari LDR
 TIMER EQU R6		; R6 digunakan sebagai timer R6 * 1ms = timer yang digunakan
