@@ -1,0 +1,140 @@
+;================== (ABOUT PROGRAM) ==================
+; About		: Automatic Hand Sanitizer
+; Anggota	: - Bagus Nurhuda 
+;		: - Naura Assyifa
+;		: - Ronald Grant
+;		: - Salma Shafira K.
+; Matkul	: Sistem Siber Fisik
+; Hal		: Proyek Mikrokontroller 8051
+
+;================== (DOCUMENTATION) ==================
+; Repository	: 
+
+MOTORLEDBUZZER EQU P3 	;Port 3 digunakan untuk menyalakan dan mematikan DC Motor, LED, dan Buzzer
+; P3.0 = Input 1 DC Motor
+; P3.1 = Input 2 DC Motor
+; P3.2 = Enable DC Motor
+; P3.4 = Input Buzzer
+; P3.5 = Input LED
+
+; Keypad
+KEYPAD EQU P2		; P2 didefinisikan sebagai keypad
+ROW1 EQU P2.4
+ROW2 EQU P2.5
+ROW3 EQU P2.6
+ROW4 EQU P2.7
+
+COL2 EQU P2.1
+
+LDR EQU P1.0		; P1.0 = input dari LDR
+TIMER EQU R6		; R6 digunakan sebagai timer R6 * 1ms = timer yang digunakan
+DATA_PTR equ 300h	; set alamat 300h = DATA_PTR
+
+ORG 0H	;set address di 0h
+
+; pengecekan PIN
+SCAN:
+	MOV MOTORLEDBUZZER, #00h	; mematikan Motor, LED, dan Buzzer
+	CALL RESET			; mematikan semua port 2
+	CALL BARIS1			; cek baris 1
+	SJMP SCAN			; looping fungsi
+
+; reset nilai dari P2
+RESET:
+	MOV KEYPAD, #0FFH	; mematikan semua port 2
+	RET			; return fungsi
+
+; baris pertama
+BARIS1:
+	CLR ROW1		; set nilai 0 di baris 1
+	JNB COL2, BARIS2	; ke baris berikutnya jika ditekan Kolom 2/P2.1 (2)
+	RET			; return fungsi
+
+; baris kedua
+BARIS2:
+	CALL RESET	; mematikan semua port 2
+	CLR ROW2	; set nilai 0 di baris 2
+	JNB COL2, BARIS3; ke baris berikutnya jika ditekan Kolom 2/P2.1 (5)
+	RET		; return fungsi
+
+BARIS3:
+	CALL RESET	; mematikan semua port 2
+	CLR ROW3	; set nilai 0 di baris 3
+	JNB COL2, BARIS4; ke baris berikutnya jika ditekan Kolom 2/P2.1 (8)
+	RET		; return fungsi
+
+BARIS4:
+	CALL RESET	; mematikan semua port 2
+	CLR ROW4	; set nilai 0 di baris 4
+	JNB COL2, CHECK ; ke baris berikutnya jika ditekan Kolom 2/P2.1 (0)
+	RET		; return fungsi
+
+;IMMEDIATE ADDRESSING
+mov DPTR, #DATA_PTR	;set dptr = data_ptr = 300h
+CALL CLEAR		; dilakukan clear
+
+CHECK:
+	CALL RESET
+	MOV TIMER, #5H	;set timer 5*1ms = 5 ms
+	JNB LDR, LDRON	;jika LDR terhalang ke fungsi LDR ON
+	SJMP CHECK	;looping check
+
+LDRON:
+	CALL DCMOTORON		; menyalakan dc motor
+	CALL LEDON		; menyalakan led
+	CALL BUZZERON		; menyalakan buzzer
+	CALL LOOPDELAY		; dilakukan delay
+	CALL CLEAR		; melakukan clear
+	SJMP CHECK		; kembali ke pengecekan
+
+DCMOTORON:
+	;REGISTER ADDRESSING
+	MOV R0, #00h		; register R0 diberikan nilai 0h
+	MOV B, R0		; register B diberikan nilai R0
+	MOV A, #05h		; register A diberikan nilai 5h
+	ADD A, B		; dilakukan aritmatik ADD antara A dan B = 5h = 0000101b
+	MOV MOTORLEDBUZZER, A	; hasil ADD dimasukan di P3/MOTORLEDBUZZER untuk menyalakan DC Motor
+	RET			; return fungsi
+
+LEDON:
+	;INDEXED ADDRESSING
+	MOV A, #0h		; memberikan nilai 0h kepada register A
+	MOVC A, @A+DPTR		; indexed adrressing yang memasukan nilai di alamat 300h ke register A
+	ORL A, MOTORLEDBUZZER	; dilakukan logika OR antara A dan P3/MOTORLEDBUZZER
+	MOV MOTORLEDBUZZER, A	; dimasukan nilai OR ke dalam P3/MOTORLEDBUZZER
+	RET			; return subrutin
+
+BUZZERON:
+	;DIRECT ADDESSING
+	MOV 1h, #00010000b	; address 1h diberikan nilai 00010000b
+	MOV A, 1h		; register A diberikan nilai address 1h
+	ORL A, MOTORLEDBUZZER	; dilakukan logika OR antara A dan P3/MOTORLEDBUZZER
+	MOV MOTORLEDBUZZER, A	; dimasukan nilai OR ke dalam P3/MOTORLEDBUZZER
+	RET			; return subrutin
+
+LOOPDELAY:
+	ACALL DELAY		; memanggil fungsi delay
+	DJNZ TIMER, LOOPDELAY	; melakukan loop sebanyak nilai di R6/TIMER
+	RET			; return sub rutin
+
+DELAY:	;delay sebesar 1ms
+	MOV TMOD,#00000001B	; me-set timer 0 ke MODE1 (16 bit timer)
+	MOV TH0,#0FCH		; memasukkan TH0 register dengan FCH
+	MOV TL0,#018H		; memasukkan TL0 register dengan 18H
+	SETB TR0		; Starts the Timer 0
+
+HERE: 	JNB TF0, HERE	;melakukan loop hingga TF0 diset
+      	CLR TR0		;mengehentikan Timer 0
+      	CLR TF0		;menghapus TF0 flag
+      	RET		;kembali ke call
+
+CLEAR:	MOV P3, #00h	; clear nilai P3
+	MOV A, #00h	; clear nilai A
+	RET		; return sub rutin
+
+ORG 300h
+	DATALED: db 32	;set address 300h = 8
+
+ENDING:
+	CALL CLEAR	; melakukan clear
+	END		; end program
