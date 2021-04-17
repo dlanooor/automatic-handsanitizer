@@ -74,10 +74,10 @@ mov DPTR, #DATA_PTR	;set dptr = data_ptr = 300h
 CALL CLEAR		; dilakukan clear
 
 CHECK:
-	CALL RESET
-	MOV TIMER, #5H	;set timer 5*1ms = 5 ms
-	JNB LDR, LDRON	;jika LDR terhalang ke fungsi LDR ON
-	SJMP CHECK	;looping check
+	CALL RESET	; dilakukan reset
+	MOV TIMER, #5H	; set timer 5*1ms = 5 ms
+	JNB LDR, LDRON	; jika LDR terhalang ke fungsi LDR ON
+	SJMP CHECK	; looping check
 
 LDRON:
 	CALL DCMOTORON		; menyalakan dc motor
@@ -123,14 +123,14 @@ DELAY:	;delay sebesar 1ms
 	MOV TL0,#018H		; memasukkan TL0 register dengan 18H
 	SETB TR0		; Starts the Timer 0
 
-HERE: 	JNB TF0, HERE	;melakukan loop hingga TF0 diset
-      	CLR TR0		;mengehentikan Timer 0
-      	CLR TF0		;menghapus TF0 flag
-      	RET		;kembali ke call
+HERE: 	JNB TF0, HERE	; melakukan loop hingga TF0 diset
+      	CLR TR0		; mengehentikan Timer 0
+      	CLR TF0		; menghapus TF0 flag
+      	RET		; kembali ke call
 
-CLEAR:	MOV P3, #00h	; clear nilai P3
-	MOV A, #00h	; clear nilai A
-	RET		; return sub rutin
+CLEAR:	MOV MOTORLEDBUZZER, #00h	; clear nilai P3
+	MOV A, #00h			; clear nilai A
+	RET				; return sub rutin
 
 ORG 300h
 	DATALED: db 32	;set address 300h = 8
